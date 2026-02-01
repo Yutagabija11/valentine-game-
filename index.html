@@ -2,139 +2,197 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<title>Gabija ❤️</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Valentine 💘</title>
 
 <style>
-body{
-  margin:0;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:linear-gradient(135deg,#ffd6e0,#fff1f5);
-  font-family:Arial,sans-serif;
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  font-family: Arial, sans-serif;
+  overflow: hidden;
 }
-.card{
-  background:white;
-  width:90%;
-  max-width:520px;
-  padding:24px;
-  border-radius:24px;
-  text-align:center;
-  box-shadow:0 18px 40px rgba(0,0,0,.15);
+
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  text-align: center;
+  width: 90%;
+  max-width: 360px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+  position: relative;
 }
-.photo{
-  width:150px;
-  height:150px;
-  border-radius:50%;
-  object-fit:cover;
-  border:5px solid #ffe0e7;
+
+img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+  border: 4px solid #ff4d6d;
 }
-.buttons{
-  position:relative;
-  height:140px;
-  margin-top:20px;
+
+h2 {
+  margin: 10px 0;
 }
-button{
-  padding:14px 30px;
-  font-size:18px;
-  border:none;
-  border-radius:30px;
-  cursor:pointer;
+
+button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 8px;
 }
-#yes{background:#ff4d6d;color:white}
-#no{
-  background:#ccc;
-  position:absolute;
-  left:200px;
+
+.yes {
+  background: #ff4d6d;
+  color: white;
 }
-.note{margin-top:14px;font-size:15px}
+
+.no {
+  background: #ddd;
+  position: absolute;
+}
+
+.heart {
+  font-size: 45px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+input {
+  padding: 10px;
+  font-size: 16px;
+  margin-top: 10px;
+  width: 70%;
+}
 </style>
 </head>
 
 <body>
 
-<div class="card">
-  <img src="photo1.jpg" class="photo" id="photo">
-  <h1>💖 Gabija, will you be my Valentine?</h1>
-  <p>A tiny game first 😈</p>
-
-  <div class="buttons" id="buttonsBox">
-    <button id="yes">Yes 💘</button>
-    <button id="no">No 😶</button>
-  </div>
-
-  <div class="note">Round 1/10 💫 Brave start 😏</div>
+<div class="card" id="game">
+  <img id="photo" src="photo1.jpg">
+  <h2 id="text">Gabija, will you be my Valentine? 💖</h2>
+  <button class="yes" onclick="nextRound()">YES</button>
+  <button class="no" id="noBtn">NO</button>
 </div>
 
 <script>
-const HER_NAME="Gabija";
-const SPOTIFY="https://open.spotify.com/track/0T5iIrXA4p5GsubkhuBIKV?si=50ba30c673ad4c5c";
-const photos=["photo1.jpg","photo2.jpg","photo3.jpg"];
+let round = 1;
+let heartTaps = 0;
+let photos = ["photo1.jpg", "photo2.jpg", "photo3.jpg"];
 
-let r=1,t=0;
-const yes=document.getElementById("yes");
-const no=document.getElementById("no");
-const note=document.querySelector(".note");
-const photo=document.getElementById("photo");
-const box=document.getElementById("buttonsBox");
-
-setInterval(()=>photo.src=photos[(r-1)%3],2500);
-
-no.onmouseover=no.ontouchstart=()=>{no.style.left=Math.random()*260+"px"};
-
-const rounds=[
-"Round 1/10 💫 Brave start 😏",
-"Round 2/10 😌 Press YES again",
-"Round 3/10 ❤️ Tap the heart 3 times!",
-"Round 4/10 😳 Are you smiling?",
-"Round 5/10 😈 Find the REAL YES",
-"Round 6/10 🔐 Type the secret code",
-"Round 7/10 💬 Answer honestly",
-"Round 8/10 💓 Almost there",
-"Round 9/10 😈 One more YES",
-"Round 10/10 😭❤️ YOU GOT ME"
+let questions = [
+  "Do you like surprises? 💕",
+  "Do I make you smile? 😊",
+  "Would you choose me again? 💘"
 ];
 
-function next(){r++;note.innerText=rounds[r-1];}
+const game = document.getElementById("game");
+const text = document.getElementById("text");
+const photo = document.getElementById("photo");
+const noBtn = document.getElementById("noBtn");
 
-yes.onclick=()=>{
-if(r==3){
- note.innerHTML=`Tap 💖 (<b>${t}</b>/3) <span id="h">💖</span>`;
- h.onclick=()=>{t++;if(t==3){t=0;next();}};
- return;
+noBtn.onmouseover = () => {
+  noBtn.style.left = Math.random() * 80 + "%";
+  noBtn.style.top = Math.random() * 80 + "%";
+};
+
+function nextRound() {
+  round++;
+  photo.src = photos[round % photos.length];
+
+  // ROUND 3 — Tap heart 3 times
+  if (round === 3) {
+    heartTaps = 0;
+    game.innerHTML = `
+      <img src="${photo.src}">
+      <h2>Tap the heart ❤️ 3 times</h2>
+      <div class="heart" onclick="tapHeart()">❤️</div>
+    `;
+    return;
+  }
+
+  // ROUND 5 — Find the real YES
+  if (round === 5) {
+    game.innerHTML = `<h2>Find the REAL YES 😈</h2>`;
+    for (let i = 0; i < 8; i++) {
+      let b = document.createElement("button");
+      b.innerText = "YES";
+      b.className = "yes";
+      b.style.position = "absolute";
+      b.style.left = Math.random() * 80 + "%";
+      b.style.top = Math.random() * 80 + "%";
+      b.onclick = i === 4 ? nextRound : () => b.remove();
+      game.appendChild(b);
+    }
+    return;
+  }
+
+  // ROUND 6 — Secret code
+  if (round === 6) {
+    game.innerHTML = `
+      <h2>Type the secret code 💌</h2>
+      <input id="code" placeholder="LOVE">
+      <br><br>
+      <button class="yes" onclick="checkCode()">Submit</button>
+    `;
+    return;
+  }
+
+  // ROUND 7 — Questions
+  if (round === 7) {
+    let q = questions.shift();
+    game.innerHTML = `
+      <h2>${q}</h2>
+      <button class="yes" onclick="nextRound()">YES</button>
+    `;
+    return;
+  }
+
+  // FINAL ROUND 10
+  if (round === 10) {
+    game.innerHTML = `
+      <h1>You got me 💘</h1>
+      <p><strong>Yuta is here for you.</strong><br>Love you forever ❤️</p>
+      <br>
+      <a href="https://open.spotify.com/track/0T5iIrXA4p5GsubkhuBIKV" target="_blank">
+        🎶 Play our song
+      </a>
+    `;
+    return;
+  }
+
+  // Default rounds
+  game.innerHTML = `
+    <img src="${photo.src}">
+    <h2>You can’t escape love 😏</h2>
+    <button class="yes" onclick="nextRound()">YES</button>
+    <button class="no" id="noBtn">NO</button>
+  `;
+
+  document.getElementById("noBtn").onmouseover = noBtn.onmouseover;
 }
-if(r==5){
- box.innerHTML="";
- let real=Math.floor(Math.random()*8);
- for(let i=0;i<8;i++){
-  let b=document.createElement("button");
-  b.innerText="Yes 💘";
-  b.style.position="absolute";
-  b.style.left=Math.random()*260+"px";
-  if(i==real)b.onclick=()=>{box.innerHTML="";box.append(yes,no);next();}
-  else b.onclick=()=>note.innerText="Fake 😈";
-  box.append(b);
- }
- return;
+
+function tapHeart() {
+  heartTaps++;
+  if (heartTaps === 3) nextRound();
 }
-if(r==6){
- let c=prompt("Secret code?");
- if(c&&c.toUpperCase()=="LOVE")next();
- return;
-}
-if(r==7){
- prompt("What’s your favorite memory with me?");
- prompt("Movie 🍿 or dinner 🍝?");
- next();return;
-}
-if(r==10){
- window.open(SPOTIFY,"_blank");
- document.body.innerHTML=`<h1 style='text-align:center'>${HER_NAME}, you got me 😭❤️</h1>`;
- return;
-}
-next();
+
+function checkCode() {
+  let value = document.getElementById("code").value.toUpperCase();
+  if (value === "LOVE") {
+    nextRound();
+  } else {
+    alert("Try again 💕");
+  }
 }
 </script>
 
