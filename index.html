@@ -1,200 +1,482 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Gabija ❤️</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Valentine Game 💘</title>
+  <style>
+    body{
+      margin:0;height:100vh;overflow:hidden;
+      display:flex;justify-content:center;align-items:center;
+      font-family:Arial, sans-serif;
+      background:linear-gradient(135deg,#ffd6e0,#fff1f5);
+    }
+    .card{
+      width:min(560px,92vw);
+      background:#fff;
+      padding:18px 18px 22px;
+      border-radius:24px;
+      text-align:center;
+      box-shadow:0 18px 40px rgba(0,0,0,.14);
+      position:relative;
+      z-index:2;
+    }
+    .photo{
+      width:155px;height:155px;border-radius:50%;
+      object-fit:cover;
+      border:5px solid #ffe0e7;
+      box-shadow:0 10px 22px rgba(0,0,0,.12);
+      margin:6px auto 12px;
+      display:block;
+    }
 
-<style>
-body {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-  font-family: Arial, sans-serif;
-  overflow: hidden;
-}
+    /* progress bar */
+    .progressWrap{
+      width:100%;
+      height:10px;
+      background:#f2f2f2;
+      border-radius:999px;
+      overflow:hidden;
+      margin:6px 0 12px;
+    }
+    .progressBar{
+      height:100%;
+      width:0%;
+      background:#ff4d6d;
+      border-radius:999px;
+      transition:width .35s ease;
+    }
 
-.card {
-  background: white;
-  padding: 25px;
-  border-radius: 20px;
-  text-align: center;
-  width: 90%;
-  max-width: 360px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.25);
-  position: relative;
-}
+    h1{margin:6px 0 4px;font-size:24px}
+    .round{color:#888;font-size:14px;margin-bottom:8px}
+    .msg{font-size:16px;color:#333;line-height:1.35;min-height:48px}
+    .area{margin-top:14px; min-height:160px; position:relative;}
+    .btn{
+      padding:12px 18px;
+      font-size:16px;
+      border:none;border-radius:999px;
+      cursor:pointer;
+      margin:8px;
+      user-select:none;
+    }
+    .primary{background:#ff4d6d;color:#fff}
+    .ghost{background:#eee;color:#333}
+    .grid{
+      display:flex;flex-wrap:wrap;justify-content:center;gap:10px;
+      margin-top:10px;
+    }
+    .choice{
+      min-width:120px;
+      background:#f6f6f6;
+      border:1px solid #eee;
+      border-radius:16px;
+      padding:12px 12px;
+      cursor:pointer;
+      font-size:16px;
+    }
+    .choice:active{transform:scale(.98)}
+    input{
+      width:min(360px,86%);
+      padding:12px 14px;
+      font-size:16px;
+      border-radius:14px;
+      border:1px solid #ddd;
+      outline:none;
+    }
+    .hint{color:#777;font-size:13px;margin-top:8px;min-height:18px}
 
-img {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 15px;
-  border: 4px solid #ff4d6d;
-}
+    /* floating */
+    .floaty{
+      position:absolute;
+      left:0;top:0;
+      pointer-events:none;
+      opacity:.78;
+      animation:float 6s linear infinite;
+    }
+    @keyframes float{
+      from{transform:translateY(110vh)}
+      to{transform:translateY(-10vh)}
+    }
 
-h2 {
-  margin: 10px 0;
-}
-
-button {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 25px;
-  font-size: 16px;
-  cursor: pointer;
-  margin: 8px;
-}
-
-.yes {
-  background: #ff4d6d;
-  color: white;
-}
-
-.no {
-  background: #ddd;
-  position: absolute;
-}
-
-.heart {
-  font-size: 45px;
-  cursor: pointer;
-  margin-top: 15px;
-}
-
-input {
-  padding: 10px;
-  font-size: 16px;
-  margin-top: 10px;
-  width: 70%;
-}
-</style>
+    /* tiny summary box at end */
+    .summary{
+      text-align:left;
+      background:#fff5f8;
+      border:1px solid #ffe0ea;
+      padding:12px 12px;
+      border-radius:16px;
+      margin-top:12px;
+      font-size:14px;
+      line-height:1.35;
+    }
+    .summary b{color:#ff4d6d}
+  </style>
 </head>
-
 <body>
 
-<div class="card" id="game">
-  <img id="photo" src="photo1.jpg">
-  <h2 id="text">Gabija, will you be my Valentine? 💖</h2>
-  <button class="yes" onclick="nextRound()">YES</button>
-  <button class="no" id="noBtn">NO</button>
-</div>
+  <div class="card">
+    <img class="photo" id="photo" src="photo1.jpg" alt="Us 💕" />
+
+    <div class="progressWrap"><div class="progressBar" id="progressBar"></div></div>
+
+    <div class="round" id="roundLabel">Round 1/10</div>
+    <h1 id="title">Where is my pookie? 😼</h1>
+    <div class="msg" id="msg">Find me! Pick the correct animals.</div>
+
+    <div class="area" id="area"></div>
+    <div class="hint" id="hint"></div>
+  </div>
 
 <script>
-let round = 1;
-let heartTaps = 0;
-let photos = ["photo1.jpg", "photo2.jpg", "photo3.jpg"];
+  // ===== Settings =====
+  const PHOTOS = ["photo1.jpg","photo2.jpg","photo3.jpg"];
+  const SPOTIFY_LINK = "https://open.spotify.com/track/0T5iIrXA4p5GsubkhuBIKV?si=50ba30c673ad4c5c";
 
-let questions = [
-  "Do you like surprises? 💕",
-  "Do I make you smile? 😊",
-  "Would you choose me again? 💘"
-];
+  // ===== Elements =====
+  const photoEl = document.getElementById("photo");
+  const roundLabel = document.getElementById("roundLabel");
+  const titleEl = document.getElementById("title");
+  const msgEl = document.getElementById("msg");
+  const area = document.getElementById("area");
+  const hint = document.getElementById("hint");
+  const progressBar = document.getElementById("progressBar");
 
-const game = document.getElementById("game");
-const text = document.getElementById("text");
-const photo = document.getElementById("photo");
-const noBtn = document.getElementById("noBtn");
+  // ===== Stored answers (shown at end) =====
+  const answers = {
+    animalPick: "",
+    chocolate: "",
+    pookieName: "",
+    valentineWant: "",
+    blushQ: "",
+    color: "",
+    surprised: ""
+  };
 
-noBtn.onmouseover = () => {
-  noBtn.style.left = Math.random() * 80 + "%";
-  noBtn.style.top = Math.random() * 80 + "%";
-};
+  // ===== Helpers =====
+  function setHint(t=""){ hint.textContent = t; }
+  function setRound(n){
+    roundLabel.textContent = `Round ${n}/10`;
+    progressBar.style.width = (n/10*100) + "%";
+  }
+  function setPhotoByRound(n){ photoEl.src = PHOTOS[(n-1) % PHOTOS.length]; }
+  function clearArea(){ area.innerHTML = ""; area.style.position = "relative"; }
 
-function nextRound() {
-  round++;
-  photo.src = photos[round % photos.length];
-
-  // ROUND 3 — Tap heart 3 times
-  if (round === 3) {
-    heartTaps = 0;
-    game.innerHTML = `
-      <img src="${photo.src}">
-      <h2>Tap the heart ❤️ 3 times</h2>
-      <div class="heart" onclick="tapHeart()">❤️</div>
-    `;
-    return;
+  function makeChoiceGrid(choices){
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    choices.forEach(c => {
+      const b = document.createElement("button");
+      b.className = "choice";
+      b.type = "button";
+      b.innerHTML = c.label;
+      b.onclick = c.onClick;
+      grid.appendChild(b);
+    });
+    area.appendChild(grid);
   }
 
-  // ROUND 5 — Find the real YES
-  if (round === 5) {
-    game.innerHTML = `<h2>Find the REAL YES 😈</h2>`;
-    for (let i = 0; i < 8; i++) {
-      let b = document.createElement("button");
-      b.innerText = "YES";
-      b.className = "yes";
-      b.style.position = "absolute";
-      b.style.left = Math.random() * 80 + "%";
-      b.style.top = Math.random() * 80 + "%";
-      b.onclick = i === 4 ? nextRound : () => b.remove();
-      game.appendChild(b);
+  function makeInput(promptText, placeholder, onSubmitLabel="Next", onSubmit){
+    const p = document.createElement("div");
+    p.style.marginTop = "6px";
+    p.style.marginBottom = "10px";
+    p.textContent = promptText;
+    area.appendChild(p);
+
+    const inp = document.createElement("input");
+    inp.placeholder = placeholder;
+    area.appendChild(inp);
+
+    const row = document.createElement("div");
+    row.style.marginTop = "12px";
+    const btn = document.createElement("button");
+    btn.className = "btn primary";
+    btn.textContent = onSubmitLabel;
+    btn.onclick = () => onSubmit(inp.value);
+    row.appendChild(btn);
+
+    area.appendChild(row);
+    inp.focus();
+  }
+
+  function floatBurst(symbols, durationMs=2200){
+    const start = Date.now();
+    const timer = setInterval(() => {
+      const s = document.createElement("div");
+      s.className = "floaty";
+      s.textContent = symbols[Math.floor(Math.random()*symbols.length)];
+      s.style.left = (Math.random()*100) + "vw";
+      s.style.fontSize = (18 + Math.random()*28) + "px";
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 6000);
+
+      if (Date.now() - start > durationMs){
+        clearInterval(timer);
+      }
+    }, 180);
+  }
+
+  // ===== Game State =====
+  let round = 1;
+
+  function nextRound(){
+    round++;
+    if (round > 10) round = 10;
+    render();
+  }
+
+  // Round 5 helpers: run-away buttons
+  function runButtonWithinArea(btn){
+    const pad = 10;
+    const w = area.clientWidth || 300;
+    const h = area.clientHeight || 170;
+    const x = pad + Math.random() * Math.max(40, (w - 140));
+    const y = pad + Math.random() * Math.max(40, (h - 70));
+    btn.style.left = x + "px";
+    btn.style.top  = y + "px";
+  }
+
+  function render(){
+    setRound(round);
+    setPhotoByRound(round);
+    setHint("");
+    clearArea();
+
+    // ROUND 1: animal emoji, correct = 🐱🐱🐹
+    if (round === 1){
+      titleEl.textContent = "Where is my pookie? 😼";
+      msgEl.textContent = "Find me! Pick the correct animals (2 cats + hamster).";
+      const correct = "🐱🐱🐹";
+      const options = [
+        { label:`${correct}`, ok:true },
+        { label:"🐶🐱🐹", ok:false },
+        { label:"🐰🐰🐹", ok:false },
+        { label:"🐱🐭🐭", ok:false },
+      ];
+      makeChoiceGrid(options.map(o => ({
+        label: o.label,
+        onClick: () => {
+          if (o.ok){
+            answers.animalPick = correct;
+            setHint("Yesss 😏 found me!");
+            setTimeout(nextRound, 650);
+          } else {
+            setHint("Nope 😈 try again");
+          }
+        }
+      })));
+      return;
     }
-    return;
+
+    // ROUND 2: chocolates
+    if (round === 2){
+      titleEl.textContent = "Valentine chocolate time 🍫";
+      msgEl.textContent = "Pick one chocolate you want 😋";
+      const reactions = {
+        "Milka 🍫": "Ooo Milka… sweet choice 😍",
+        "Raffaello 🥥": "Raffaello?? classy pookie 💅💖",
+        "POOKIE 🍫😈": "Pookie chocolate?? that’s MY favorite 😭💘"
+      };
+      makeChoiceGrid(Object.keys(reactions).map(k => ({
+        label: k,
+        onClick: () => {
+          answers.chocolate = k;
+          setHint(reactions[k]);
+          setTimeout(nextRound, 750);
+        }
+      })));
+      return;
+    }
+
+    // ROUND 3: type pookie name
+    if (round === 3){
+      titleEl.textContent = "Type your pookie name ✍️";
+      msgEl.textContent = "No empty answers 😌";
+      makeInput("Your pookie name:", "Type here…", "Submit", (val) => {
+        const v = (val||"").trim();
+        if (!v) { setHint("Type something 😈"); return; }
+        answers.pookieName = v;
+        setHint(`Okayyy "${v}" 😏💖`);
+        setTimeout(nextRound, 650);
+      });
+      return;
+    }
+
+    // ROUND 4: what you want for valentine
+    if (round === 4){
+      titleEl.textContent = "Question time 💝";
+      msgEl.textContent = "What do you want for Valentine?";
+      makeInput("Tell me:", "Type your wish…", "Send", (val) => {
+        const v = (val||"").trim();
+        if (!v) { setHint("Don’t be shy 😌 type it"); return; }
+        answers.valentineWant = v;
+        setHint("Noted 😏 (I’m listening…) ");
+        setTimeout(nextRound, 700);
+      });
+      return;
+    }
+
+    // ROUND 5: Are you blushing? YES always runs; NO runs sometimes
+    if (round === 5){
+      titleEl.textContent = "Are you blushing? 😳";
+      msgEl.textContent = "Be honest…";
+      setHint("Try to press YES 😈");
+
+      area.style.position = "relative";
+      area.style.height = "180px";
+
+      const yes = document.createElement("button");
+      yes.className = "btn primary";
+      yes.textContent = "YES 😳";
+      yes.style.position = "absolute";
+      yes.style.left = "18px";
+      yes.style.top = "24px";
+
+      const no = document.createElement("button");
+      no.className = "btn ghost";
+      no.textContent = "NO 🙈";
+      no.style.position = "absolute";
+      no.style.right = "18px";
+      no.style.top = "24px";
+
+      function runYes(){
+        runButtonWithinArea(yes);
+        setHint("NOPE 😈 you can’t catch YES");
+      }
+
+      function maybeRunNo(){
+        // 45% chance NO also runs away
+        if (Math.random() < 0.45){
+          // switch to absolute positioning so it can move freely
+          no.style.left = (area.clientWidth - 120) + "px";
+          no.style.right = "";
+          runButtonWithinArea(no);
+          setHint("HAHA even NO is scared sometimes 😈");
+        }
+      }
+
+      yes.addEventListener("mouseover", runYes);
+      yes.addEventListener("touchstart", (e)=>{ e.preventDefault(); runYes(); });
+
+      // NO runs sometimes when you get close / tap
+      no.addEventListener("mouseover", maybeRunNo);
+      no.addEventListener("touchstart", (e)=>{ e.preventDefault(); maybeRunNo(); });
+
+      no.onclick = () => {
+        answers.blushQ = "NO 🙈 (but I know 😏)";
+        setHint("Awww you pressed NO… but I know the truth 😏");
+        setTimeout(nextRound, 700);
+      };
+
+      area.appendChild(yes);
+      area.appendChild(no);
+      return;
+    }
+
+    // ROUND 6: I can see you blushing
+    if (round === 6){
+      titleEl.textContent = "I can see you’re blushing 😌";
+      msgEl.textContent = "Don’t hide it, pookie 💖";
+      const btn = document.createElement("button");
+      btn.className = "btn primary";
+      btn.textContent = "Okay… next 😳";
+      btn.onclick = nextRound;
+      area.appendChild(btn);
+      return;
+    }
+
+    // ROUND 7: hearts + flowers + pick your colour
+    if (round === 7){
+      titleEl.textContent = "Sending you love 🌸💘";
+      msgEl.textContent = "Hearts and flowers for you… now press your colour!";
+      floatBurst(["💖","💕","🌹","🌷","💐","❤️","💘"], 2400);
+
+      const colors = [
+        { name:"Pink 💗", react:"Pink suits you sooo much 😍" },
+        { name:"Red ❤️", react:"Red = spicy love 😈❤️" },
+        { name:"Purple 💜", react:"Purple pookie vibe 💜✨" },
+        { name:"Blue 💙", react:"Blue = calm + cute 😌💙" }
+      ];
+
+      makeChoiceGrid(colors.map(c => ({
+        label: c.name,
+        onClick: () => {
+          answers.color = c.name;
+          setHint(c.react);
+          setTimeout(nextRound, 750);
+        }
+      })));
+      return;
+    }
+
+    // ROUND 8: closer message
+    if (round === 8){
+      titleEl.textContent = "You’re closer… 💞";
+      msgEl.textContent = "I mean close to me as always <3";
+      const btn = document.createElement("button");
+      btn.className = "btn primary";
+      btn.textContent = "Aww 🥺 next";
+      btn.onclick = nextRound;
+      area.appendChild(btn);
+      return;
+    }
+
+    // ROUND 9: surprised question
+    if (round === 9){
+      titleEl.textContent = "Are you surprised? 😯";
+      msgEl.textContent = "Tell me honestly!";
+      makeChoiceGrid([
+        { label:"YES 😍", onClick: () => { answers.surprised="YES 😍"; setHint("Hehe good 😈"); setTimeout(nextRound, 650);} },
+        { label:"NO 😌",  onClick: () => { answers.surprised="NO 😌";  setHint("Okay miss strong 😏"); setTimeout(nextRound, 650);} }
+      ]);
+      return;
+    }
+
+    // ROUND 10: final + show stored answers
+    if (round === 10){
+      titleEl.textContent = "YOU GOT ME 💘";
+      msgEl.innerHTML = `
+        <b>You got me, I LOVE YOU.</b><br>
+        Yuta is here for you, love you forever baby &lt;3
+      `;
+      floatBurst(["💖","💕","❤️","💘","🌹","💐"], 2600);
+
+      const summary = document.createElement("div");
+      summary.className = "summary";
+      summary.innerHTML = `
+        <b>Your choices:</b><br>
+        • Animals: ${answers.animalPick || "—"}<br>
+        • Chocolate: ${answers.chocolate || "—"}<br>
+        • Pookie name: ${answers.pookieName || "—"}<br>
+        • Valentine wish: ${answers.valentineWant || "—"}<br>
+        • Blushing: ${answers.blushQ || "—"}<br>
+        • Colour: ${answers.color || "—"}<br>
+        • Surprised: ${answers.surprised || "—"}
+      `;
+      area.appendChild(summary);
+
+      const link = document.createElement("a");
+      link.href = SPOTIFY_LINK;
+      link.target = "_blank";
+      link.textContent = "🎶 Play our song (Spotify)";
+      link.style.display = "inline-block";
+      link.style.marginTop = "14px";
+      link.style.textDecoration = "none";
+      link.style.color = "#ff4d6d";
+      link.style.fontWeight = "700";
+      area.appendChild(link);
+
+      const btnRow = document.createElement("div");
+      const replay = document.createElement("button");
+      replay.className = "btn primary";
+      replay.textContent = "Replay 😈";
+      replay.onclick = () => { round = 1; render(); };
+      btnRow.appendChild(replay);
+      area.appendChild(btnRow);
+      return;
+    }
   }
 
-  // ROUND 6 — Secret code
-  if (round === 6) {
-    game.innerHTML = `
-      <h2>Type the secret code 💌</h2>
-      <input id="code" placeholder="LOVE">
-      <br><br>
-      <button class="yes" onclick="checkCode()">Submit</button>
-    `;
-    return;
-  }
-
-  // ROUND 7 — Questions
-  if (round === 7) {
-    let q = questions.shift();
-    game.innerHTML = `
-      <h2>${q}</h2>
-      <button class="yes" onclick="nextRound()">YES</button>
-    `;
-    return;
-  }
-
-  // FINAL ROUND 10
-  if (round === 10) {
-    game.innerHTML = `
-      <h1>You got me 💘</h1>
-      <p><strong>Yuta is here for you.</strong><br>Love you forever ❤️</p>
-      <br>
-      <a href="https://open.spotify.com/track/0T5iIrXA4p5GsubkhuBIKV" target="_blank">
-        🎶 Play our song
-      </a>
-    `;
-    return;
-  }
-
-  // Default rounds
-  game.innerHTML = `
-    <img src="${photo.src}">
-    <h2>You can’t escape love 😏</h2>
-    <button class="yes" onclick="nextRound()">YES</button>
-    <button class="no" id="noBtn">NO</button>
-  `;
-
-  document.getElementById("noBtn").onmouseover = noBtn.onmouseover;
-}
-
-function tapHeart() {
-  heartTaps++;
-  if (heartTaps === 3) nextRound();
-}
-
-function checkCode() {
-  let value = document.getElementById("code").value.toUpperCase();
-  if (value === "LOVE") {
-    nextRound();
-  } else {
-    alert("Try again 💕");
-  }
-}
+  render();
 </script>
-
 </body>
 </html>
