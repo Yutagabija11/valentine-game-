@@ -454,21 +454,27 @@
       `;
       area.appendChild(summary);
 
-      // --- Spotify embed player (at the end) ---
-const trackId = "0T5iIrXA4p5GsubkhuBIKV"; // your song ID
-
+    // --- Spotify embed (shows under Round 10, manual play) ---
 const spotifyBox = document.createElement("div");
 spotifyBox.style.marginTop = "16px";
 spotifyBox.innerHTML = `
-  <iframe style="border-radius:12px"
-    src="https://open.spotify.com/embed/track/${trackId}"
-    width="100%" height="352"
+  <iframe
+    data-testid="embed-iframe"
+    style="border-radius:12px"
+    src="https://open.spotify.com/embed/album/1a43UOca3qYS1ZcS0b9wSk"
+    width="100%"
+    height="352"
     frameborder="0"
     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
     loading="lazy">
   </iframe>
+
+  <div style="font-size:13px;color:#777;margin-top:6px;">
+    ▶ Tap play to hear the best part 💖
+  </div>
 `;
 area.appendChild(spotifyBox);
+
 
 // --- Auto-open Spotify app after 2 seconds (so hearts/ending is visible first) ---
 setTimeout(() => {
