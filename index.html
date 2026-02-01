@@ -14,12 +14,12 @@
       align-items: center;
       background: #ffd6e5;
       font-family: Arial, sans-serif;
-      overflow: hidden; /* hearts stay clean */
+      overflow: hidden;
     }
 
     .card {
-      background: #fff;
-      padding: 38px 28px;
+      background: white;
+      padding: 36px 26px;
       border-radius: 22px;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0,0,0,0.15);
@@ -30,19 +30,24 @@
 
     .icon {
       font-size: 44px;
-      line-height: 1;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     h1 {
-      margin: 0 0 18px;
-      font-size: 28px;
+      margin: 0 0 14px;
+      font-size: 26px;
+    }
+
+    .round {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 12px;
     }
 
     .buttons {
       position: relative;
-      height: 140px;
-      margin-top: 12px;
+      height: 150px;
+      margin-top: 10px;
     }
 
     button {
@@ -57,7 +62,7 @@
     #yes {
       background: #ff4d6d;
       color: white;
-      box-shadow: 0 8px 20px rgba(255, 77, 109, 0.35);
+      box-shadow: 0 8px 20px rgba(255,77,109,0.35);
     }
 
     #no {
@@ -68,53 +73,32 @@
       top: 70px;
     }
 
-    .hint {
-      margin-top: 8px;
-      font-size: 14px;
-      color: #666;
-    }
-
-    .result {
+    #result {
       display: none;
       margin-top: 18px;
-      font-size: 18px;
-      color: #222;
-      font-weight: 700;
+      font-size: 20px;
+      font-weight: bold;
     }
 
-    /* Spotify at the end */
     #spotifySection {
       display: none;
       margin-top: 18px;
-      text-align: left;
-    }
-
-    #spotifySection .label {
-      text-align: center;
-      font-size: 14px;
-      color: #666;
-      margin: 8px 0 10px;
-      font-weight: 600;
     }
 
     /* HEARTS */
     .heart {
       position: fixed;
-      left: 50%;
       top: 105%;
       font-size: 18px;
       pointer-events: none;
-      z-index: 1;
-      opacity: 0.9;
-      transform: translateX(-50%);
       animation: floatUp linear forwards;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12));
+      z-index: 1;
     }
 
     @keyframes floatUp {
-      0%   { transform: translateX(-50%) translateY(0) scale(0.9); opacity: 0; }
-      10%  { opacity: 0.9; }
-      100% { transform: translateX(calc(-50% + var(--drift))) translateY(-120vh) scale(1.35); opacity: 0; }
+      0% { opacity: 0; transform: translateY(0) scale(0.8); }
+      10% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-120vh) scale(1.4); }
     }
   </style>
 </head>
@@ -122,128 +106,96 @@
 <body>
 
   <div class="card">
-    <div class="icon">🐱💘</div>
+    <div class="icon">💘</div>
     <h1>Will you be my Valentine?</h1>
+    <div class="round" id="roundText">Round 1 / 10</div>
 
     <div class="buttons">
-      <button id="yes" onclick="showLove()">Yes</button>
+      <button id="yes" onclick="yesClicked()">Yes</button>
       <button id="no">No</button>
     </div>
 
-    <div class="hint">Try pressing “No” 😈</div>
+    <div id="result">YAY!!! ❤️🥰</div>
 
-    <div id="result" class="result">YAY!!! ❤️🥰</div>
-
-    <!-- Spotify at the end (hidden until YES) -->
     <div id="spotifySection">
-      <div class="label">Your song 🎵</div>
-      <iframe data-testid="embed-iframe"
-        style="border-radius:12px"
-        src="https://open.spotify.com/embed/track/2zOmS55knKWSgScYPTNmGQ?utm_source=generator"
+      <iframe style="border-radius:12px"
+        src="https://open.spotify.com/embed/track/2zOmS55knKWSgScYPTNmGQ"
         width="100%" height="352"
         frameborder="0"
-        allowfullscreen=""
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        loading="lazy">
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
       </iframe>
     </div>
   </div>
 
-  <script>
-    // ====== Spotify IDs ======
-    const TRACK_ID = "2zOmS55knKWSgScYPTNmGQ";
-    const OPEN_WEB_URL = "https://open.spotify.com/track/" + TRACK_ID;
-    const OPEN_APP_URI = "spotify:track:" + TRACK_ID;
+<script>
+  let round = 1;
+  const maxRounds = 10;
 
-    // ====== "NO" RUNS AWAY ======
-    const noBtn = document.getElementById("no");
+  const noBtn = document.getElementById("no");
+  const roundText = document.getElementById("roundText");
 
-    // For computer mouse
-    document.addEventListener("mousemove", (e) => {
-      const rect = noBtn.getBoundingClientRect();
-      const dx = e.clientX - (rect.left + rect.width / 2);
-      const dy = e.clientY - (rect.top + rect.height / 2);
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance < 120) {
-        moveNoButton(rect);
-      }
-    });
-
-    // For phones (touch)
-    noBtn.addEventListener("touchstart", () => {
-      const rect = noBtn.getBoundingClientRect();
-      moveNoButton(rect);
-    });
-
-    function moveNoButton(rect) {
-      // keep it inside the screen
-      const x = Math.random() * (window.innerWidth - rect.width);
-      const y = Math.random() * (window.innerHeight - rect.height);
-      noBtn.style.left = x + "px";
-      noBtn.style.top = y + "px";
+  function moveNo() {
+    if (round >= maxRounds) {
+      noBtn.style.display = "none";
+      roundText.innerText = "No escape left 😈";
+      return;
     }
 
-    // ====== HEARTS ======
-    const hearts = ["💖","💘","💕","❤️","💗","💓","💞","😍"];
+    round++;
+    roundText.innerText = `Round ${round} / ${maxRounds}`;
 
-    function spawnHeart(extraBig = false) {
-      const h = document.createElement("div");
-      h.className = "heart";
-      h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+    const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+    const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
+  }
 
-      const left = Math.random() * 100;              // vw
-      const duration = 3 + Math.random() * 3.5;      // seconds
-      const size = (extraBig ? 26 : 14) + Math.random() * (extraBig ? 18 : 16);
-      const drift = (Math.random() * 160 - 80) + "px";
+  document.addEventListener("mousemove", (e) => {
+    const rect = noBtn.getBoundingClientRect();
+    const dx = e.clientX - (rect.left + rect.width / 2);
+    const dy = e.clientY - (rect.top + rect.height / 2);
+    const dist = Math.sqrt(dx*dx + dy*dy);
 
-      h.style.left = left + "vw";
-      h.style.fontSize = size + "px";
-      h.style.setProperty("--drift", drift);
-      h.style.animationDuration = duration + "s";
+    if (dist < 120) moveNo();
+  });
 
-      document.body.appendChild(h);
-      setTimeout(() => h.remove(), duration * 1000);
+  noBtn.addEventListener("touchstart", moveNo);
+
+  /* HEARTS */
+  const hearts = ["❤️","💖","💕","💘","💗","💞"];
+
+  function spawnHeart(big=false) {
+    const h = document.createElement("div");
+    h.className = "heart";
+    h.innerText = hearts[Math.floor(Math.random()*hearts.length)];
+    h.style.left = Math.random() * 100 + "vw";
+    h.style.fontSize = (big ? 30 : 16) + "px";
+    h.style.animationDuration = (3 + Math.random()*3) + "s";
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 6000);
+  }
+
+  setInterval(() => spawnHeart(false), 500);
+
+  function burstHearts() {
+    for (let i=0;i<25;i++) {
+      setTimeout(() => spawnHeart(true), i*40);
     }
+  }
 
-    // gentle continuous hearts in background
-    setInterval(() => spawnHeart(false), 450);
+  function yesClicked() {
+    burstHearts();
+    document.getElementById("result").style.display = "block";
+    document.getElementById("spotifySection").style.display = "block";
 
-    function burstHearts() {
-      for (let i = 0; i < 22; i++) {
-        setTimeout(() => spawnHeart(true), i * 40);
-      }
-    }
-
-    // ====== Open Spotify app with fallback ======
-    function openSpotifyApp() {
-      const start = Date.now();
-      window.location.href = OPEN_APP_URI;
-
+    setTimeout(() => {
+      window.location.href = "spotify:track/2zOmS55knKWSgScYPTNmGQ";
       setTimeout(() => {
-        // If app didn't open, go to web
-        if (Date.now() - start < 1500) {
-          window.location.href = OPEN_WEB_URL;
-        }
-      }, 1100);
-    }
-
-    // ====== YES CLICK ======
-    function showLove() {
-      burstHearts();
-
-      // show result message
-      document.getElementById("result").style.display = "block";
-
-      // show Spotify at the end
-      document.getElementById("spotifySection").style.display = "block";
-
-      // wait so hearts + page are visible first, THEN open spotify
-      setTimeout(() => {
-        openSpotifyApp();
-      }, 2000);
-    }
-  </script>
+        window.location.href = "https://open.spotify.com/track/2zOmS55knKWSgScYPTNmGQ";
+      }, 1200);
+    }, 2000);
+  }
+</script>
 
 </body>
 </html>
