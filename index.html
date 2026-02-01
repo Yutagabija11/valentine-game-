@@ -454,16 +454,33 @@
       `;
       area.appendChild(summary);
 
-      const link = document.createElement("a");
-      link.href = SPOTIFY_LINK;
-      link.target = "_blank";
-      link.textContent = "🎶 Play our song (Spotify)";
-      link.style.display = "inline-block";
-      link.style.marginTop = "14px";
-      link.style.textDecoration = "none";
-      link.style.color = "#ff4d6d";
-      link.style.fontWeight = "700";
-      area.appendChild(link);
+      // --- Spotify embed player (at the end) ---
+const trackId = "0T5iIrXA4p5GsubkhuBIKV"; // your song ID
+
+const spotifyBox = document.createElement("div");
+spotifyBox.style.marginTop = "16px";
+spotifyBox.innerHTML = `
+  <iframe style="border-radius:12px"
+    src="https://open.spotify.com/embed/track/${trackId}"
+    width="100%" height="352"
+    frameborder="0"
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+    loading="lazy">
+  </iframe>
+`;
+area.appendChild(spotifyBox);
+
+// --- Auto-open Spotify app after 2 seconds (so hearts/ending is visible first) ---
+setTimeout(() => {
+  // try open app
+  window.location.href = `spotify:track:${trackId}`;
+
+  // fallback to web if app not installed / blocked
+  setTimeout(() => {
+    window.location.href = `https://open.spotify.com/track/${trackId}`;
+  }, 1200);
+}, 2000);
+
 
       const btnRow = document.createElement("div");
       const replay = document.createElement("button");
